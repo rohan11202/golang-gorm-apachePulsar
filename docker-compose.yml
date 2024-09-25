@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  go-backend:
+    image: golang-pulsar
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-backend
+    environment:
+      - DB_HOST=postgres
+      - DB_USER=p4nda
+      - DB_PASSWORD=p4nda_pswd
+      - DB_NAME=bookDB
+      - PULSAR_HOST=pulsar
+      - PULSAR_PORT=6650
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - pulsar
+    networks:
+      - backend-network
+
+  postgres:
+    image: postgres:latest
+    container_name: go-pulsar
+    environment:
+      - POSTGRES_USER=p4nda
+      - POSTGRES_PASSWORD=p4nda_pswd
+      - POSTGRES_DB=bookDB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend-network
+
+  pulsar:
+    image: apachepulsar/pulsar:latest
+    container_name: pulsar
+    command: bin/pulsar standalone
+    ports:
+      - "6650:6650"
+      - "8080:8080"
+    networks:
+      - backend-network
+
+volumes:
+  pgdata:
+
+networks:
+  backend-network:
+    driver: bridge
