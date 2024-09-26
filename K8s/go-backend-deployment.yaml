@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: go-backend
+  name: go-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: go-backend
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend-network: "true"
+        io.kompose.service: go-backend
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+              value: postgres
+            - name: DB_NAME
+              value: bookDB
+            - name: DB_PASSWORD
+              value: p4nda_pswd
+            - name: DB_USER
+              value: p4nda
+            - name: PULSAR_HOST
+              value: pulsar
+            - name: PULSAR_PORT
+              value: "6650"
+          image: rs11202/golang-pulsar
+          name: go-backend
+          ports:
+            - containerPort: 3000
+          resources: {}
+      restartPolicy: Always
+status: {}
