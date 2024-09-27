@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.27.0 (b0ed6a2c9)
   creationTimestamp: null
   labels:
-    io.kompose.service: pulsar
-  name: pulsar
+    io.kompose.service: prometheus
+  name: prometheus
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: pulsar
+      io.kompose.service: prometheus
   strategy:
     type: Recreate
   template:
@@ -23,24 +23,25 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/backend-network: "true"
-        io.kompose.service: pulsar
+        io.kompose.service: prometheus
     spec:
       containers:
-        - args:
-            - bin/pulsar
-            - standalone
-          image: apachepulsar/pulsar:2.9.2
-          name: pulsar
+        - image: prom/prometheus
+          name: go-prometheus
           ports:
-            - containerPort: 6650
-            - containerPort: 8080
+            - containerPort: 9090
           resources: {}
           volumeMounts:
-            - mountPath: /pulsar/data
-              name: pulsar-data
+            - mountPath: /prometheus
+              name: prometheus-data
+            - mountPath: /etc/prometheus/prometheus.yml
+              name: prometheus-claim1
       restartPolicy: Always
       volumes:
-        - name: pulsar-data
+        - name: prometheus-data
           persistentVolumeClaim:
-            claimName: pulsar-data
+            claimName: prometheus-data
+        - name: prometheus-claim1
+          persistentVolumeClaim:
+            claimName: prometheus-claim1
 status: {}
