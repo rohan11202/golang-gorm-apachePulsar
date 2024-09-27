@@ -6,14 +6,19 @@ import (
 
 	"github.com/gorilla/mux"
 
+	middleware "backend/Middleware"
 	schema "backend/Models"
 	routes "backend/Routers"
 	pulsarutils "backend/Utils"
 )
 
 func main() {
+	middleware.Init()
+
 	schema.Initiate()
 	router := mux.NewRouter()
+	router.Use(middleware.MetricsMiddleware)
+
 	routes.RegisterRoutes(router)
 
 	pulsarutils.SetupPulsar()

@@ -19,6 +19,9 @@ services:
     depends_on:
       - postgres
       - pulsar
+      - prometheus
+      - node-exporter
+      - grafana
     networks:
       - backend-network
 
@@ -37,17 +40,50 @@ services:
       - backend-network
 
   pulsar:
-    image: apachepulsar/pulsar:latest
+    image: apachepulsar/pulsar:2.9.2
     container_name: pulsar
     command: bin/pulsar standalone
     ports:
       - "6650:6650"
       - "8080:8080"
+    volumes:
+      - pulsar-data:/pulsar/data 
     networks:
       - backend-network
 
+  prometheus:
+    image: prom/prometheus
+    container_name: go-prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    networks:
+      - backend-network
+    ports:
+      - 9090:9090
+
+  node-exporter:
+    image: prom/node-exporter
+    container_name: go-nord-exporter
+    networks:
+      - backend-network
+    ports:
+      - 9100:9100
+
+  grafana:
+    image: grafana/grafana
+    container_name: go-grafana
+    ports:
+      - "3001:3000"  
+    networks:
+      - backend-network
+    depends_on:
+      - prometheus
+
 volumes:
   pgdata:
+  prometheus_data:
+  pulsar-data:
 
 networks:
   backend-network:
